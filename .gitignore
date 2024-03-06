@@ -91,3 +91,7 @@ fabric.properties
 # Built Visual Studio Code Extensions
 *.vsix
 
+.idea
+.idea/*
+.vscode
+.vscode/*
