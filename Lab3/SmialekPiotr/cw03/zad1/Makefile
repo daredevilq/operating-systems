@@ -1,3 +1,8 @@
+# Do sprawdzania zadania trzeba wykonac kolejno:
+# make clean -> zeby upewnic sie ze wszystkie niepotrzebne pliki zostana wyczyszone 
+# make all -> komenda wykonuje szereg czynnosci i tworzy nam raport w postaci pliku _zad1.txt, 
+# w ktorym znajduja sie szczegoly
+
 .PHONY: all clean generate 
 
 CC = gcc
