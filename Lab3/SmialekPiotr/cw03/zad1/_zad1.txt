@@ -1,0 +1,11 @@
+Zadanie 1 statystyki:
+
+Wiekosc pliku wejsciowego: 100000
+Czas wykonania w sekundach funkcji reverse [czytanie po 1 znaku]: 0.079475
+
+Wiekosc pliku wejsciowego: 100000
+Czas wykonania w sekundach funkcji reverse [czytanie blokow po 1024 znaki]: 0.000313
+
+
+Wynik komendy diff -s input_file.txt temp_file.txt :
+Pliki input_file.txt i temp_file.txt są identyczne
