@@ -12,8 +12,6 @@ int main(){
     struct stat bufor_stat;
     
     
-    
-
     dir = opendir("test-directory");
 
     if (dir == NULL)
@@ -21,6 +19,16 @@ int main(){
         printf("Failed to open directory\n");
         return 1;
     }
+
+    FILE *stats_file;
+    stats_file = fopen("_zad2.txt","a+");
+    
+    if (stats_file == NULL){
+        printf("Error opening file!\n");
+        return 1;
+    }
+    
+    
     rewinddir(dir);
     entry = readdir(dir);    
     while (entry != NULL){
@@ -35,7 +43,12 @@ int main(){
             }
 
             if(!S_ISDIR(bufor_stat.st_mode)){
-                printf("%-20s %lld bytes\n", entry->d_name, (long long) bufor_stat.st_size);
+                fprintf(stats_file, "\n");
+                fprintf(stats_file, "%s ",entry->d_name);
+                fprintf(stats_file, "%lld ", (long long) bufor_stat.st_size);
+                fprintf(stats_file, "bytes");
+
+                // printf("%-20s %lld bytes\n", entry->d_name, (long long) bufor_stat.st_size);
                 total_size += bufor_stat.st_size;
             }
 
@@ -43,10 +56,12 @@ int main(){
         entry = readdir(dir);        
     }
     
-    printf("Total size of all files: %lld bytes\n", total_size);
+    fprintf(stats_file, "\n");
+    fprintf(stats_file, "Total size of all files in directory %s: %lld bytes\n", "test-directory", total_size);
+    // printf("Total size of all files in directory %s: %lld bytes\n","test-directory", total_size);
+    
 
-
-
+    fclose(stats_file);
     closedir(dir);
     return 0;
 }

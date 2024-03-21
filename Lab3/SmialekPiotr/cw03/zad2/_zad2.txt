@@ -1,0 +1,18 @@
+Raport zadania 2
+
+Wyniki dla size_sum.c:
+
+file1.txt 7774 bytes
+file5.txt 7355 bytes
+file3.txt 2854 bytes
+file4.txt 1879 bytes
+file2.txt 3893 bytes
+Total size of all files in directory test-directory: 23850 bytes
+
+Sprawdzenie wynikow komenda ls:
+razem 28
+-rw-rw-r-- 1 daredevilq daredevilq 7774 mar 21 20:50 file1.txt
+-rw-rw-r-- 1 daredevilq daredevilq 3893 mar 21 20:50 file2.txt
+-rw-rw-r-- 1 daredevilq daredevilq 2854 mar 21 20:50 file3.txt
+-rw-rw-r-- 1 daredevilq daredevilq 1879 mar 21 20:50 file4.txt
+-rw-rw-r-- 1 daredevilq daredevilq 7355 mar 21 20:50 file5.txt

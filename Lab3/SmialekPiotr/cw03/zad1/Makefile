@@ -1,7 +1,12 @@
+#!!! UWAGA (paczka zostala wyslana z przykladowym plikiem raportu _zad1.txt) !!!
 # Do sprawdzania zadania trzeba wykonac kolejno:
 # make clean -> zeby upewnic sie ze wszystkie niepotrzebne pliki zostana wyczyszone 
 # make all -> komenda wykonuje szereg czynnosci i tworzy nam raport w postaci pliku _zad1.txt, 
-# w ktorym znajduja sie szczegoly
+# w ktorym znajduja sie szczegoly, wszystkie czynnosci beda wykonane za nas wystarczy wykonanie tych dwoch komend 
+# i sprawdzenie raportu w pliku _zad1.txt
+
+# output_file.txt jest odwroconym plikiem input_file.txt
+# temp_file.txt jest odwroconym plikiem output_file.txt czyli w teorii powinien byc taki sam jak plik input_file.txt
 
 .PHONY: all clean generate 
 
