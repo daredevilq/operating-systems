@@ -1,3 +1,8 @@
+# W celu uruchomienia nalezy wykonac:
+# 1. make clean
+# 2. make test -> wykona przygotowane testy
+# Ewentualnie mozna wykonac make integral i odpalic program z wlasnymi argumentami np ./integral 123123 2312
+
 .PHONY: all clean test
 
 CC = gcc
