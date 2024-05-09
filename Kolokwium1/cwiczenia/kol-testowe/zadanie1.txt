@@ -1,0 +1,404 @@
+BIBLIOTEKI:
+	statyczna:
+	
+	gcc -c lib.c 
+	ar rcs libmy_library.a lib.o
+	gcc -c main.c
+	gcc main.o libmy_library.a -o main //albo gcc main.o -l my_library -L./ -o main
+	
+	wspoldzielona:
+	
+	gcc -fPIC -c stringlibrary.c
+	gcc -o libshared.so stringlibrary.o
+	gcc main.c -o main -lshared -L. -Wl,-rpath=./ 
+
+
+	dynamiczna:
+	#include <dlfcn.h>
+	
+	
+
+#include <stdio.h>
+#include <dlfcn.h>
+
+void printMessage();
+
+int main(){
+
+    void *handle = dlopen("./libstringlibrary.so", RTLD_LAZY);
+    if(!handle){
+        printf("Error: %s\n", dlerror());
+    }
+
+    void (*lib_fun)();
+    lib_fun = (void (*)())dlsym(handle,"printMessage");
+
+    if(dlerror() != NULL){
+        printf("Error: %s\n", dlerror());
+    }
+
+    (*lib_fun)();
+
+    dlclose(handle);
+
+    return 0;
+
+}
+
+
+	odpalenie:
+	gcc -fPIC -c stringlibrary.c
+	gcc -o libstringlibrary.so stringlibrary.o -shared
+	gcc main.c -o main -ldl
+
+
+
+PLIKI:
+	<fcntl.h> <unistd.h> <sys/types.h> <sys/stat.h>
+
+	int open(const char *pathname, int flags[, mode_t mode]);
+	int creat(const char *pathname, mode_t mode);
+
+	
+	O_RDONLY	Otwiera plik do odczytu	
+	O_WRONLY	Otwiera plik do zapisu
+	O_RDWR		Otwiera plik do zapisu i odczytu
+	
+
+long lseek(inf fd, off_t offset, int whence);
+
+fd – deskryptor do pliku na którym operujemy
+offset – nowa pozycja w pliku
+whence – parametr służący interpretacji drugiego parametru.
+
+Parametr whence funkcji lseek przyjmuje jedną z wartości:
+
+SEEK_SET – początek pliku
+SEEK_END – koniec pliku
+SEEK_CUR – aktualna pozycja wskaźnika
+
+
+
+FILE * fopen ( const char * filename, const char * mode );
+
+r	Otwiera plik do odczytu
+w	Otwiera plik do zapisu (kasuje ewentualny poprzedni)
+a	Otwiera plik do zapisu. Nie kasuje poprzedniego pliku i ustawia wskaźnik na końcu.
+r+	Otwiera plik do zapisu i odczytu. Plik musi istnieć.
+w+	Otwiera plik do zapisu i odczytu. Jeśli plik istniał to nadpisuje.
+a+	Otwiera plik do odczytu i dopisywania. Nie można pisać wcześniej niż na końcu.
+[rwa+]	b	Otwiera plik jako binarny nie tekstowy.
+
+size_t fread ( void * ptr, size_t size, size_t count, FILE * file)
+
+Argumenty:
+ptr - wskaźnik na bufor
+size -rozmiar elementu bufora
+count - liczba elementów do odczytu
+file -plik, na którym wykonywana jest operacja
+
+
+size_t fwrite ( const void * buff, size_t size, size_t count, FILE * file);
+Argumenty:
+ptr - wskaźnik na tablicę
+size - rozmiar elementu tablicy
+count - liczba elementów do zapisu
+file - plik, na którym wykonywana jest operacja
+
+
+int fseek ( FILE * file, long int offset, int mode);
+ 
+Funkcja fseek ustawia pozycję w pliku file na offset w zależności od wartości argumentu mode.
+mode = SEEK_SET (0) - offset liczony jest od początku.
+mode = SEEK_CUR (1) - offset przesuwany od aktualnej pozycji,
+mode = SEEK_END (2) - przesuwany o offset od końca pliku (wskaźnik pliku jest przesuwany do pozycji będącej sumą rozmiaru pliku i parametru offset).
+
+
+int fsetpos (FILE* file, fpos_t* pos);
+Funkcja zmienia aktualną pozycję wskaźnika do pliku file na pos.
+Zwraca: Zero gdy funkcja wykonała się pomyślnie, EOF w przypadku wystąpienia błędu
+
+int fgetpos (FILE* file, fpos_t* pos);
+Funkcja umieszcza w pos aktualną pozycję wskaźnika do pliku file.
+Zwraca: Zero gdy funkcja wykonała się pomyślnie, EOF w przypadku wystąpienia błędu
+
+
+
+
+int fclose ( FILE * stream );
+
+
+
+KATALOGI
+
+man 7 inode
+
+    DIR *test_dir = opendir("testdir");
+    mkdir("te",S_IRWXU | S_IRWXG | S_IRWXO); - najmoznieszja flaga
+    rewinddir(test_dir) - Ustawia strumień katalogowy na początek.;
+    int closedir(DIR* dirp)
+
+int stat (const char *path, struct stat *buf); - pobranie statusu pliku
+
+wejście:	path - nazwa sprawdzanego pliku
+buf - bufor na strukturę stat
+rezultat:	err - Po sukcesie zwracane jest zero. Po błędzie -1 i ustawiane jest 'errno':
+EBADF - 'filedes' jest nieprawidłowy.
+ENOENT - Plik nie istnieje.
+
+
+int mkdir (const char *path, mode_t mode); - tworzenie katalogu z uprawnieniami podanymi w mode
+
+int rmdir (const char *path); - usuwanie katalogu
+
+int chdir (const char *path); - argument path staje się nowym katalogiem bieżącym dla programu.
+
+char *getcwd (char *folder_name, ssize_t size); - funkcja wpisuje do folder_name bieżący katalog roboczy o rozmiarze size.
+
+int chmod (const char *path, mode_t new); - zmiana uprawnień do pliku.
+
+int chown (const char *path, uid_t id_wlaściciela, gid_t id_grupy); - zmiana właściciela.
+
+int link (const char *path, const char *nowa); - stworzenie twardego linku do pliku. Usunięcie łącza – funkcja ulink.
+
+int nftw(const char *dir, int(*fn) (), int nopend, int flags)
+
+
+
+
+PROCESY:
+
+sys/resource.h
+
+
+int getrlimit (int resource, struct rlimit *rlptr) Resource to jedno z makr określające rodzaj zasobu
+
+int setrlimit (int resource, const struct rlimit *rlptr)
+
+struct rlimit {
+
+        rlim_t rlim_cur; //bieżące ograniczenie
+
+        rlim_t rlim_max; //maksymalne ograniczenie
+
+}
+
+
+pid_t getpid(void) - zwraca PID procesu wywołującego funkcję
+pid_t getppid(void) - zwraca PID procesu macierzystego
+uid_t getuid(void) - zwraca rzeczywisty identyfikator użytkownika UID
+uid_t geteuid(void) - zwraca efektywny identyfikator użytkownika UID
+gid_t getgid(void) - zwraca rzeczywisty identyfikator grupy GID
+gid_t getegid(void) - zwraca efektywny identyfikator grupy GID
+
+
+ pid_t fork() // vfork()
+
+
+Funkcje z rodziny exec służą do uruchomienia w ramach procesu innego programu.
+
+
+int execl(char const *path, char const *arg0, ...)
+funkcja jako pierwszy argument przyjmuje ścieżkę do pliku, następne są argumenty wywołania funkcji, gdzie arg0 jest nazwą programu
+
+int execle(char const *path, char const *arg0, ..., char const * const *envp)
+podobnie jak execl, ale pozwala na podanie w ostatnim argumencie tablicy ze zmiennymi środowiskowymi
+
+int execlp(char const *file, char const *arg0, ...)
+również przyjmuje listę argumentów ale, nie podajemy tutaj ścieżki do pliku, lecz samą jego nazwę, zmienna środowiskowa PATH zostanie przeszukana w celu zlokalizowania pliku
+
+int execv(char const *path, char const * const * argv)
+analogicznie do execl, ale argumenty podawane są w tablicy
+
+int execve(char const *path, char const * const *argv, char const * const *envp)
+analogicznie do execle, również argumenty przekazujemy tutaj w tablicy tablic znakowych
+
+int execvp(char const *file, char const * const *argv)
+analogicznie do execlp, argumenty w tablicy
+
+execl(„/bin/ls", „ls", „-l",null)
+execlp(„ls", „ls", „-l",null)
+char* const av[]={„ls", „-l", null}
+execv(„/bin/ls", av)
+char* const av[]={„ls", „-l", null}
+execvp(„ls", av)
+
+wywołanie instrukcji return w funkcji main
+ void exit( int status )
+void _exit( int status )
+
+
+Funkcja _exit natychmiast kończy działanie programu i powoduje powrót do jądra systemu. Funkcja exit natomiast, dokonuje pewnych operacji porządkowych - kończy działanie procesu, który ją wykonał i powoduje przekazanie w odpowiednie miejsce tablicy procesów wartości status, która może zostać odebrana i zinterpretowana przez proces macierzysty
+
+
+SIGTERM – programowe zamknięcie procesu (15, domyślny sygnał)
+SIGKILL – unicestwienie procesu, powoduje utratę wszystkich zawartych w nm danych (9)
+SIGSTOP – zatrzymanie procesu bez utraty danych
+SIGCONT – wznowienie zatrzymanego procesu
+
+
+
+SYGNALY:
+
+#define _XOPEN_SOURCE 700 
+
+kill(int pid, int SIGNAL);
+int raise( int signal);
+
+int sigqueue(pid_t pid, int sig, const union sigval value)
+Funkcja ta wysyła sygnał sig do procesu o danym pid. Jeśli przekazany pid jest równy 0 sygnał nie zostanie
+wysłany, natomiast nastąpi sprawdzenie ewentualnych błędów, które mogłyby nastąpić przy wysyłaniu.
+Argument sigval może zawierać dodatkową wartość wysłaną wraz z sygnałem. Typ sigval zdefiniowany jest
+następująco:
+union sigval {
+ int sival_int;
+ void *sival_ptr;
+} 
+
+np.
+	union sigval value;
+        value.sival_int = 100;
+        sigqueue(pid, SIGUSR1, value);
+
+a odbieramy tak:
+
+struct sigaction action;
+    action.sa_sigaction = handler;    
+    action.sa_flags = SA_SIGINFO;           
+    sigemptyset(&action.sa_mask);           
+    sigaction(SIGUSR1, &action, NULL);
+
+handler to:
+
+void handler(int signo, siginfo_t *info, void *extra){
+		
+    int int_val = info->si_value.sival_int;
+}
+
+
+
+void pause();
+Zawiesza wywołujący proces aż do chwili otrzymania dowolnego sygnału. Jeśli sygnał jest ignorowany przez
+proces, to funkcja pause też go ignoruje. Najczęściej sygnałem, którego oczekuje pause jest sygnał pobudki 
+
+
+
+int sigemptyset ( sigset_t* signal_set );
+Inicjalizacja pustego zbioru sygnałów.
+
+int sigfillset ( sigset_t* signal_set );
+Inicjalizacja zestawu zawierającego wszystkie sygnały istniejące w systemie.
+
+int sigaddset ( sigset_t* signal_set, int sig_no );
+Dodawanie pojedynczego sygnału do zbioru.
+
+int sigdelset ( sigset_t* signal_set, int sig_no );
+Usunięcie pojedynczego sygnału z zestawu.
+
+int sigismember ( sigset_t *signal_set, int sig_no );
+Sprawdzenie, czy w zestawie znajduje się dany sygnał.
+
+
+
+int sigprocmask(int how, const sigset_t *new_set, sigset_t *old_set);
+Funkcja ustawiająca maskę dla aktualnego procesu.
+Do parametru old_set zostanie zapisana poprzednia maska
+
+int sigpending(sigset_t *set);
+Służy do odczytania listy sygnałów, które oczekuję na odblokowanie w danym procesie ((ang. pending
+signals)). Do zmiennej set zapisywany jest zestaw oczekujących sygnałów
+
+
+int sigsuspend(cost sigset_t *set);
+
+Służy do odebrania sygnału oczekującego
+Tymczasowo zastępuje procesową maskę sygnałów na tę wskazaną parametrem set, a także wstrzymuje
+działanie procesu do momentu, kiedy nadejdzie odblokowany sygnał. Po obsłudze sygnału ponownie jest
+ustawiana maska sprzed wywołania sigsuspend.
+
+
+
+
+
+POTOKI:
+
+int pipe(int fd[2]); fd[0] deksryptoe czytania
+fd[1] deksryptoe zapisu
+close(fd)
+
+wywołać program zewnętrzny poprzez fork + exec i np. przekazać jakieś dane na jego wejście standardowe, lub stworzyć pipeline przetwarzający dane poprzez "przepuszczenie" danych przez kilka programów. Aby tego dokonać, możemy ustawić w stworzonych procesach wejście/wyjście standardowe na odpowiednie deskryptory potoku używając funkcji dup2:
+
+int dup2(int oldfd, int newfd)
+STDIN_FILENO / STDOUT_FILENO
+
+int fd[2];
+pipe(fd);
+pid_t pid = fork();
+if (pid == 0) { // dziecko
+    close(fd[1]); 
+    dup2(fd[0],STDIN_FILENO);
+    execlp("grep", "grep","Ala", NULL);
+} else { // rodzic
+    close(fd[0]);
+    // write(fd[1], ...) - przesłanie danych do grep-a
+}
+
+
+FILE* popen(const char* command "ls -l", const char* type "r" albo "w");
+int pclose(FILE* stream);
+
+
+Analogiczne wywołanie grep-a przy pomocy popen:
+
+FILE* grep_input = popen("grep Ala", "w");
+// fputs(..., grep_input) - przesłanie danych do grep-a
+pclose(grep_input);
+#define _XOPEN_SOURCE 700 
+
+    FILE* ps_output = popen("ps aux", "r"); // Uruchomienie polecenia "ps aux" i ustawienie trybu czytania
+    FILE* wc_input = popen("wc -l", "w"); // Uruchomienie polecenia "wc -l" i ustawienie trybu zapisu
+
+    char buffer[4096];
+    size_t bytes_read;
+
+    // Czytanie danych z ps_output i przekazywanie ich do wc_input
+    while ((bytes_read = fread(buffer, 1, sizeof(buffer), ps_output)) > 0) {
+        fwrite(buffer, 1, bytes_read, wc_input);
+    }
+
+
+
+    int pipefd[2];
+    pid_t pid;
+
+
+    pipe(pipefd);
+    pid = fork();
+
+    if (pid == 0) { // Proces potomny
+        // Zamykanie końcówki czytającej
+        close(pipefd[0]);
+        // Przekierowanie standardowego wyjścia do końcówki piszącej potoku
+        dup2(pipefd[1], STDOUT_FILENO);
+
+        // Uruchomienie polecenia "ps aux"
+        execlp("ps", "ps", "aux", NULL);
+
+    } else { // Proces rodzicielski
+        // Zamykanie końcówki piszącej
+        close(pipefd[1]);
+        // Przekierowanie standardowego wejścia do końcówki czytającej potoku
+        dup2(pipefd[0], STDIN_FILENO);
+        // Uruchomienie polecenia "wc -l"
+        execlp("wc", "wc", "-l", NULL);
+    }
+
+mkfifo("input_pipe_start.fifo", S_IRWXU)
+
+(mkfifo("input_pipe_start.fifo", S_IRWXU)
+    int input_pipe_start_fd = open("input_pipe_start.fifo", O_RDONLY);
+    int input_pipe_end_fd = open("input_pipe_end.fifo", O_RDONLY);
+    int output_pipe_fd = open("output_pipe.fifo", O_WRONLY);
+
+read(input_pipe_start_fd, &interval_start, sizeof(interval_start))
+write(input_pipe_start_fd, &interval_start, sizeof(interval_start)
