@@ -9,13 +9,7 @@
 #define MAX_CLIENTS 10
 #define BUFFER_SIZE 1024
 
-typedef struct {
-    int sockfd;
-    char id[20];
-} client_t;
-
-client_t clients[MAX_CLIENTS];
-pthread_mutex_t clients_mutex = PTHREAD_MUTEX_INITIALIZER;
+//wysylamy sygnal ALIVE do klientow co 20sekund
 
 void send_message_to_all(char *message, char *sender_id);
 void send_message_to_one(char *message, char *target_id, char *sender_id);
@@ -24,10 +18,20 @@ void remove_client(int sockfd);
 void *handle_client(void *arg);
 void *alive_check(void *arg);
 
+
+typedef struct {
+    int sockfd;
+    char id[20];
+} client_t;
+
+client_t clients[MAX_CLIENTS];
+pthread_mutex_t clients_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+
 int main(int argc, char *argv[]) {
     if (argc != 3) {
-        fprintf(stderr, "Usage: %s <IP> <PORT>\n", argv[0]);
-        return 1;
+        fprintf(stderr, "you must provide: [IP] and [PORT]\n");
+        return EXIT_FAILURE;
     }
 
     char *ip = argv[1];
@@ -47,36 +51,23 @@ int main(int argc, char *argv[]) {
     server_addr.sin_addr.s_addr = inet_addr(ip);
     server_addr.sin_port = htons(port);
 
-    if (bind(server_sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        perror("Bind failed");
-        close(server_sockfd);
-        return 1;
-    }
+    bind(server_sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr));
 
-    if (listen(server_sockfd, 10) < 0) {
-        perror("Listen failed");
-        close(server_sockfd);
-        return 1;
-    }
+    listen(server_sockfd, 10) < 0;
 
     printf("Server is listening on %s:%d\n", ip, port);
 
     pthread_create(&tid, NULL, alive_check, NULL);
 
     while (1) {
-        socklen_t clilen = sizeof(client_addr);
-        int client_sockfd = accept(server_sockfd, (struct sockaddr*)&client_addr, &clilen);
-        if (client_sockfd < 0) {
-            perror("Accept failed");
-            continue;
-        }
-
+        socklen_t client = sizeof(client_addr);
+        int client_sockfd = accept(server_sockfd, (struct sockaddr*)&client_addr, &client);
         pthread_t client_tid;
         pthread_create(&client_tid, NULL, handle_client, (void*)&client_sockfd);
     }
 
     close(server_sockfd);
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 void send_message_to_all(char *message, char *sender_id) {
@@ -193,7 +184,6 @@ void *handle_client(void *arg) {
 void *alive_check(void *arg) {
     while (1) {
         pthread_mutex_lock(&clients_mutex);
-
         for (int i = 0; i < MAX_CLIENTS; ++i) {
             if (clients[i].sockfd != 0) {
                 if (send(clients[i].sockfd, "ALIVE", 5, 0) <= 0) {

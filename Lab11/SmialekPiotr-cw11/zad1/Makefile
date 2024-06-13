@@ -15,11 +15,12 @@ client: client.c
 test_server: all
 	./server 127.0.0.1 8888
 
-test_connect_client1: all
+test_client1: all
 	./client 1 127.0.0.1 8888
 
-test_connect_client2: all
+test_client2: all
 	./client 2 127.0.0.1 8888
 
 clean: 
 	rm -f client server
+
